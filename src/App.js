@@ -3,8 +3,10 @@ import * as BooksAPI from './BooksAPI'
 import './App.css'
 import { Route, Link } from 'react-router-dom'
 
-import Search from './Search';
-import Book from './Book';
+import debounce from 'lodash';
+
+// import Search from './Search';
+// import Book from './Book';
 
 /*
  Main application
@@ -78,6 +80,100 @@ function Shelf({ name, books, moveShelf }) {
       <div className="bookshelf-books">
         <ol className="books-grid">
           {currBooks}
+        </ol>
+      </div>
+    </div>
+  )
+}
+
+function Book({ book, moveShelf }) {
+  return (
+    <div className="book">
+      <div className="book-top">
+        <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url("${book.imageLinks ? book.imageLinks.thumbnail : ""}")` }}></div>
+        <div className="book-shelf-changer">
+          <select
+            value={book.shelf || "none"}
+            onChange={(e) => {
+              moveShelf(book, e.target.value)
+            }}>
+            <option value="move" disabled>Move to...</option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+      </div>
+      <div className="book-title">{book.title}</div>
+      <div className="book-authors">{book.authors || "No authors found..."}</div>
+    </div>
+  )
+}
+
+
+function Search({ books, moveShelf }) {
+
+  const [query, setQuery] = useState("");
+  const [searchResults, setResults] = useState([]);
+
+
+  const handleSubmit = (evt) => {
+    evt.persist();
+    submitSearch(query);
+  }
+
+  function submitSearch(query) {
+    if (query) {
+      BooksAPI.search(query).then((resp) => {
+        try {
+          resp.forEach(book => {
+            let result = books.filter(bookFromProp => bookFromProp.id === book.id)
+            if (result.length > 0) {
+              result.map(bookRes => book.shelf = bookRes.shelf || '')
+            }
+          })
+          setResults({
+            searchResults: resp
+          });
+        } catch (err) {
+          console.log(resp.err);
+          setResults({
+            searchResults: []
+          })
+        }
+      })
+    }
+  }
+
+  console.log(searchResults);
+
+  return (
+    <div className="search-books">
+      <div className="search-books-bar">
+        <Link
+          className="close-search"
+          to="/"
+        >Close
+          </Link>
+        <div className="search-books-input-wrapper">
+          <form onChange={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Search by title or author"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              name="query"
+              autoComplete="Off"
+            />
+          </form>
+        </div>
+      </div>
+      <div className="search-books-results">
+        <ol className="books-grid">
+          {
+            searchResults.map(book => <Book book={book} moveShelf={moveShelf} />)
+          }
         </ol>
       </div>
     </div>
