@@ -84,9 +84,10 @@ const Application = () => {
     dispatch(fetchBooks);
   }, []);
 
-  const moveShelf = async (book, shelf) => {
+  const moveShelf = async (book, shelf) => async dispatch =>{
     book.shelf = shelf;
-    await BooksAPI.update(book, shelf);
+    let response = await BooksAPI.update(book, shelf);
+    return dispatch()
   }
 
   return (
