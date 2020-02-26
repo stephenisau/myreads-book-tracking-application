@@ -33,42 +33,25 @@ export const useThunkReducer = (reducer, initialState) => {
  * Update book shelf on our backend and change the shelf 
  * associated with our book on the client-side
  */
-export const moveShelf = (book, shelf) => async dispatch => {
-  try {
-    await BooksAPI.update(book, shelf);
-    book.shelf = shelf; // lol 
-    await dispatch({
-      type: MOVE_SHELF,
-      payload: { book }
-    });
-  } catch (error) {
-    dispatch({
-      type: ERROR,
-      payload: { error }
-    });
-  };
-};
+// export const moveShelf = (book, shelf) => async dispatch => {
+//   try {
+//     await BooksAPI.update(book, shelf);
+//     book.shelf = shelf; // lol 
+//     await dispatch({
+//       type: MOVE_SHELF,
+//       payload: { book }
+//     });
+//   } catch (error) {
+//     dispatch({
+//       type: ERROR,
+//       payload: { error }
+//     });
+//   };
+// };
 
 export const contextProvider = ({ children }) => {
   const [books, dispatch] = useReducer(reducer, initialState);
 
-
-  const fetchBooks = async dispatch => {
-    await dispatch({ type: LOADING });
-    try {
-      const response = await BooksAPI.getAll();
-      await dispatch({
-        type: LOADED,
-        payload: { books: [...response] }
-      }, [dispatch]);
-    }
-    catch (error) {
-      dispatch({
-        type: ERROR,
-        payload: { error }
-      }, [dispatch]);
-    };
-  }
 
   const moveShelf = (book, shelf) => async dispatch => {
     try {
@@ -87,9 +70,9 @@ export const contextProvider = ({ children }) => {
   };
 
 
-  const value = { books, moveShelf, fetchBooks };
+  const value = { books, moveShelf };
 
-  
+    debugger;
   return (
     <BookContext.Provider value={value}>
       {children}

@@ -24,10 +24,8 @@ export const reducer = (state = {}, action) => {
       }
 
     case MOVE_SHELF:
-      let { book } = { ...action.payload}
-      return {
-        book
-      }
+      const { book } = action.payload;
+      return state.filter(b => b.id !== book.id ? b : book)
     default:
       return state;
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useEffect, useReducer, useContext } from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import { BrowserRouter } from 'react-router-dom';
@@ -60,32 +60,17 @@ const fetchBooks = async dispatch => {
   };
 }
 
-const moveShelf = (book, shelf) => async dispatch => {
-  try {
-    await BooksAPI.update(book, shelf);
-    book.shelf = shelf; // lol 
-    await dispatch({
-      type: MOVE_SHELF,
-      payload: { book }
-    });
-  } catch (error) {
-    dispatch({
-      type: ERROR,
-      payload: { error }
-    });
-  };
-};
-
 
 const Application = () => {
 
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { books } = state;
-
+  
   useEffect(() => {
     dispatch(fetchBooks);
   }, []);
-
+  
+  // const { moveShelf } = useContext(contextProvider);
   return (
     <div className="app">
       <BrowserRouter>
