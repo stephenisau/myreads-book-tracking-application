@@ -24,8 +24,9 @@ export const reducer = (state = {}, action) => {
       }
 
     case MOVE_SHELF:
+      let { book } = { ...action.payload}
       return {
-        
+        book
       }
     default:
       return state;

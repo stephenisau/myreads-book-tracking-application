@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import { BrowserRouter } from 'react-router-dom';
-import { LOADING, LOADED, ERROR } from './actions/types';
+import { LOADING, LOADED, ERROR, MOVE_SHELF } from './actions/types';
 
 /**
  * External Library Imports
@@ -16,6 +16,7 @@ import debounce from 'lodash';
  */
 import Routes from './routes/Routes';
 import { reducer } from './reducer/root';
+import { contextProvider } from './Context';
 import MainPage from './components/MainPage';
 /*
  Main application
@@ -59,6 +60,22 @@ const fetchBooks = async dispatch => {
   };
 }
 
+const moveShelf = (book, shelf) => async dispatch => {
+  try {
+    await BooksAPI.update(book, shelf);
+    book.shelf = shelf; // lol 
+    await dispatch({
+      type: MOVE_SHELF,
+      payload: { book }
+    });
+  } catch (error) {
+    dispatch({
+      type: ERROR,
+      payload: { error }
+    });
+  };
+};
+
 
 const Application = () => {
 
@@ -72,7 +89,7 @@ const Application = () => {
   return (
     <div className="app">
       <BrowserRouter>
-        <Routes books={books}/>
+        <Routes books={books} />
       </BrowserRouter>
     </div>
   )
