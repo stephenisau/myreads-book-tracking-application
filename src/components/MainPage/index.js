@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 const MainPage = ({ books, moveShelf }) => {
   if (!books) return <React.Fragment>Loading...</React.Fragment>
 
+  console.log(moveShelf);
   const currentReads = books.filter(book => book.shelf === 'currentlyReading')
   const wantToRead = books.filter(book => book.shelf === 'wantToRead')
   const finishedReading = books.filter(book => book.shelf === 'read')

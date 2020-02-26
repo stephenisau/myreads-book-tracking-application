@@ -1,10 +1,11 @@
 import React, { useCallback, useReducer, createContext } from 'react';
-import { reducer } from './reducer/root';
 import { LOADING, LOADED, ERROR, MOVE_SHELF } from './actions/types';
 import * as BooksAPI from './BooksAPI';
 
 
-export const BookContext = createContext();
+export const BookContext = createContext(BookProvider);
+export const Provider = BookContext.Provider;
+export const Consumer = BookContext.Consumer;
 
 export const initialState = {
   books: [],
@@ -12,7 +13,36 @@ export const initialState = {
   error: null,
 }
 
-export const useThunkReducer = (reducer, initialState) => {
+const reducer = (state = initialState, action) => {
+  switch (action.type) {
+    case LOADING:
+      return {
+        books: [],
+        loading: true,
+        error: null
+      }
+    case LOADED:
+      return {
+        books: action.payload.books,
+        loading: false,
+        error: null
+      }
+    case ERROR:
+      return {
+        books: [],
+        loading: false,
+        error: action.payload.error
+      }
+
+    case MOVE_SHELF:
+      const { book } = action.payload;
+      return state.filter(b => b.id !== book.id ? b : book)
+    default:
+      return state;
+  }
+}
+
+const useThunkReducer = (reducer, initialState) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const thunkDispatch = React.useCallback(action => {
@@ -49,9 +79,27 @@ export const useThunkReducer = (reducer, initialState) => {
 //   };
 // };
 
-export const contextProvider = ({ children }) => {
-  const [books, dispatch] = useReducer(reducer, initialState);
+export const BookProvider = ({ children }) => {
+  debugger;
+  const [state, dispatch] = useThunkReducer(reducer, initialState);
+  const { books } = state;
 
+  const fetchBooks = async dispatch => {
+    await dispatch({ type: LOADING });
+    try {
+      const response = await BooksAPI.getAll();
+      await dispatch({
+        type: LOADED,
+        payload: { books: [...response] }
+      });
+    }
+    catch (error) {
+      dispatch({
+        type: ERROR,
+        payload: { error }
+      });
+    };
+  }
 
   const moveShelf = (book, shelf) => async dispatch => {
     try {
@@ -70,9 +118,8 @@ export const contextProvider = ({ children }) => {
   };
 
 
-  const value = { books, moveShelf };
+  const value = { books, moveShelf, fetchBooks };
 
-    debugger;
   return (
     <BookContext.Provider value={value}>
       {children}

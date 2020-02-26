@@ -16,7 +16,7 @@ import debounce from 'lodash';
  */
 import Routes from './routes/Routes';
 import { reducer } from './reducer/root';
-import { contextProvider } from './Context';
+import { Provider, Consumer } from './Context';
 import MainPage from './components/MainPage';
 /*
  Main application
@@ -59,22 +59,40 @@ const fetchBooks = async dispatch => {
     });
   };
 }
-
+// const moveShelf = (book, shelf) => async dispatch => {
+//   try {
+//     await BooksAPI.update(book, shelf);
+//     book.shelf = shelf; // lol 
+//     await dispatch({
+//       type: MOVE_SHELF,
+//       payload: { book }
+//     });
+//   } catch (error) {
+//     dispatch({
+//       type: ERROR,
+//       payload: { error }
+//     }, [dispatch]);
+//   };
+// };
 
 const Application = () => {
 
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { books } = state;
-  
+
   useEffect(() => {
     dispatch(fetchBooks);
   }, []);
-  
-  // const { moveShelf } = useContext(contextProvider);
+
+  const moveShelf = async (book, shelf) => {
+    book.shelf = shelf;
+    await BooksAPI.update(book, shelf);
+  }
+
   return (
     <div className="app">
       <BrowserRouter>
-        <Routes books={books} />
+        <Routes books={books} moveShelf={moveShelf}/>
       </BrowserRouter>
     </div>
   )
