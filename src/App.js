@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useContext, createContext } from 'react'
+import React, { useEffect, useReducer, useContext, createContext, useState } from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import { BrowserRouter } from 'react-router-dom';
@@ -53,6 +53,7 @@ const reducer = (state = initialState, action) => {
         error: action.payload.error
       }
     case MOVE_SHELF:
+      debugger;
       const { book } = action.payload;
       return state.books.filter(oldBook => oldBook.id === book.id ? book : oldBook);
 
@@ -110,8 +111,9 @@ const Application = () => {
 
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { books } = state;
-
-  const [bookStore, setBookStore] = useReducer(reducer, state);
+  // const [books, setBooks] = useState([...state.books]);
+  console.log(state);
+  console.log(books);
   // debugger;
   const fetchBooks = async dispatch => {
     await dispatch({ type: LOADING });
@@ -131,22 +133,12 @@ const Application = () => {
   }
 
   const moveShelf = async (book, shelf) => async dispatch => {
-    debugger;
-    try {
-      debugger;
-      await BooksAPI.update(book, shelf);
-      book.shelf = shelf; // lol 
-      await dispatch({
-        type: MOVE_SHELF,
-        payload: { book }
-      });
-    } catch (error) {
-      debugger;
-      dispatch({
-        type: ERROR,
-        payload: { error }
-      }, [dispatch]);
-    };
+    await BooksAPI.update(book, shelf);
+    book.shelf = shelf; // lol 
+    await dispatch({
+      type: MOVE_SHELF,
+      payload: { book }
+    });
   };
 
 
@@ -155,6 +147,11 @@ const Application = () => {
     dispatch(fetchBooks);
   }, []);
 
+  // const moveShelf = async (book, shelf) => {
+  //   await BooksAPI.update(book, shelf);
+  //   book.shelf = shelf;
+  //   setBooks(prevState => ([...prevState.books.map(b => b.id === book.id ? book : b)]));
+  // }
   // const moveShelf = async (book, shelf) => async dispatch =>{
   //   book.shelf = shelf;
   //   let response = await BooksAPI.update(book, shelf);
@@ -167,7 +164,7 @@ const Application = () => {
   return (
     <div className="app">
       <BrowserRouter>
-        <Routes books={books} moveShelf={moveShelf}/>
+        <Routes books={books} moveShelf={moveShelf} />
       </BrowserRouter>
     </div>
   )

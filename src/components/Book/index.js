@@ -3,17 +3,15 @@ import React from 'react';
 const Book = ({ book, moveShelf }) => {
   console.log(book, moveShelf)
   const styles = {
-    bookCover: { 
-      width: 128, 
-      height: 193, 
-      backgroundImage: `url("${book.imageLinks ? book.imageLinks.thumbnail : ""}")` 
+    bookCover: {
+      width: 128,
+      height: 193,
+      backgroundImage: `url("${book.imageLinks ? book.imageLinks.thumbnail : ""}")`
     }
   }
 
   const changeShelf = async (evt) => {
-    evt.persist();
     await moveShelf(book, evt.target.value)
-    debugger;
   }
 
   return (
