@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useContext } from 'react'
+import React, { useEffect, useReducer, useContext, createContext } from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import { BrowserRouter } from 'react-router-dom';
@@ -15,9 +15,11 @@ import debounce from 'lodash';
  * Component Imports
  */
 import Routes from './routes/Routes';
-import { reducer } from './reducer/root';
-import { Provider, Consumer } from './Context';
+// import { reducer } from './reducer/root';
+// import { BookContext, BookProvider } from './Context';
+// import { BookStore } from './Context';
 import MainPage from './components/MainPage';
+import Book from './components/Book';
 /*
  Main application
 */
@@ -27,6 +29,36 @@ const initialState = {
   books: [],
   loading: false,
   error: null,
+}
+
+
+const reducer = (state = initialState, action) => {
+  switch (action.type) {
+    case LOADING:
+      return {
+        books: [],
+        loading: true,
+        error: null
+      }
+    case LOADED:
+      return {
+        books: action.payload.books,
+        loading: false,
+        error: null
+      }
+    case ERROR:
+      return {
+        books: [],
+        loading: false,
+        error: action.payload.error
+      }
+    case MOVE_SHELF:
+      const { book } = action.payload;
+      return state.books.filter(oldBook => oldBook.id === book.id ? book : oldBook);
+
+    default:
+      return state;
+  }
 }
 
 const useThunkReducer = (reducer, initialState) => {
@@ -41,24 +73,22 @@ const useThunkReducer = (reducer, initialState) => {
   }, [dispatch]);
   return [state, thunkDispatch];
 }
-
-
-const fetchBooks = async dispatch => {
-  await dispatch({ type: LOADING });
-  try {
-    const response = await BooksAPI.getAll();
-    await dispatch({
-      type: LOADED,
-      payload: { books: [...response] }
-    });
-  }
-  catch (error) {
-    dispatch({
-      type: ERROR,
-      payload: { error }
-    });
-  };
-}
+// const fetchBooks = async dispatch => {
+//   await dispatch({ type: LOADING });
+//   try {
+//     const response = await BooksAPI.getAll();
+//     await dispatch({
+//       type: LOADED,
+//       payload: { books: [...response] }
+//     });
+//   }
+//   catch (error) {
+//     dispatch({
+//       type: ERROR,
+//       payload: { error }
+//     });
+//   };
+// }
 // const moveShelf = (book, shelf) => async dispatch => {
 //   try {
 //     await BooksAPI.update(book, shelf);
@@ -75,20 +105,64 @@ const fetchBooks = async dispatch => {
 //   };
 // };
 
+
 const Application = () => {
 
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { books } = state;
 
+  const [bookStore, setBookStore] = useReducer(reducer, state);
+  // debugger;
+  const fetchBooks = async dispatch => {
+    await dispatch({ type: LOADING });
+    try {
+      const response = await BooksAPI.getAll();
+      await dispatch({
+        type: LOADED,
+        payload: { books: [...response] }
+      });
+    }
+    catch (error) {
+      dispatch({
+        type: ERROR,
+        payload: { error }
+      });
+    };
+  }
+
+  const moveShelf = async (book, shelf) => async dispatch => {
+    debugger;
+    try {
+      debugger;
+      await BooksAPI.update(book, shelf);
+      book.shelf = shelf; // lol 
+      await dispatch({
+        type: MOVE_SHELF,
+        payload: { book }
+      });
+    } catch (error) {
+      debugger;
+      dispatch({
+        type: ERROR,
+        payload: { error }
+      }, [dispatch]);
+    };
+  };
+
+
+
   useEffect(() => {
     dispatch(fetchBooks);
   }, []);
 
-  const moveShelf = async (book, shelf) => async dispatch =>{
-    book.shelf = shelf;
-    let response = await BooksAPI.update(book, shelf);
-    return dispatch()
-  }
+  // const moveShelf = async (book, shelf) => async dispatch =>{
+  //   book.shelf = shelf;
+  //   let response = await BooksAPI.update(book, shelf);
+  //   return dispatch({
+  //     type: MOVE_SHELF,
+  //     payload: book 
+  //   });
+  // }
 
   return (
     <div className="app">

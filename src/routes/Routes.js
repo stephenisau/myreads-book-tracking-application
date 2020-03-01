@@ -11,7 +11,7 @@ const Routes = ({ books, moveShelf }) => {
         render={(route) => <MainPage {...route} books={books} moveShelf={moveShelf}/>} />
       <Route 
         exact path="/search"
-        render={(route) => <Search />} />
+        render={(route) => <Search {...route} />} />
     </Switch>
   )
 }

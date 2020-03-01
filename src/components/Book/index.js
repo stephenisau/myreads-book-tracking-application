@@ -1,13 +1,19 @@
 import React from 'react';
 
 const Book = ({ book, moveShelf }) => {
-
+  console.log(book, moveShelf)
   const styles = {
     bookCover: { 
       width: 128, 
       height: 193, 
       backgroundImage: `url("${book.imageLinks ? book.imageLinks.thumbnail : ""}")` 
     }
+  }
+
+  const changeShelf = async (evt) => {
+    evt.persist();
+    await moveShelf(book, evt.target.value)
+    debugger;
   }
 
   return (
@@ -17,9 +23,7 @@ const Book = ({ book, moveShelf }) => {
         <div className="book-shelf-changer">
           <select
             value={book.shelf || "none"}
-            onChange={(evt) => {
-              moveShelf(book, evt.target.value)
-            }}>
+            onChange={changeShelf}>
             <option value="move" disabled>Move to...</option>
             <option value="currentlyReading">Currently Reading</option>
             <option value="wantToRead">Want to Read</option>

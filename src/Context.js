@@ -3,16 +3,22 @@ import { LOADING, LOADED, ERROR, MOVE_SHELF } from './actions/types';
 import * as BooksAPI from './BooksAPI';
 
 
-export const BookContext = createContext(BookProvider);
-export const Provider = BookContext.Provider;
-export const Consumer = BookContext.Consumer;
 
-export const initialState = {
+/**
+ * Initial state of our application
+ */
+const initialState = {
   books: [],
   loading: false,
   error: null,
 }
+// Context variables
+export const BookStore = createContext(initialState);
+const { Provider } = BookStore;
 
+/**
+ * Root reducer
+ */
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case LOADING:
@@ -33,27 +39,32 @@ const reducer = (state = initialState, action) => {
         loading: false,
         error: action.payload.error
       }
-
     case MOVE_SHELF:
       const { book } = action.payload;
-      return state.filter(b => b.id !== book.id ? b : book)
+      return state.books.filter(oldBook => oldBook.id === book.id ? book : oldBook);
+
     default:
       return state;
   }
 }
 
-const useThunkReducer = (reducer, initialState) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+/**
+ * Custom hook to utilize thunk reducer
+ * @param {*} reducer 
+ * @param {*} initialState 
+ */
+// const useThunkReducer = (reducer, initialState) => {
+//   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const thunkDispatch = React.useCallback(action => {
-    if (typeof action === "function") {
-      action(dispatch);
-    } else {
-      dispatch(action);
-    };
-  }, [dispatch]);
-  return [state, thunkDispatch];
-}
+//   const thunkDispatch = React.useCallback(action => {
+//     if (typeof action === "function") {
+//       action(dispatch);
+//     } else {
+//       dispatch(action);
+//     };
+//   }, [dispatch]);
+//   return [state, thunkDispatch];
+// }
 
 
 /**
@@ -63,26 +74,11 @@ const useThunkReducer = (reducer, initialState) => {
  * Update book shelf on our backend and change the shelf 
  * associated with our book on the client-side
  */
-// export const moveShelf = (book, shelf) => async dispatch => {
-//   try {
-//     await BooksAPI.update(book, shelf);
-//     book.shelf = shelf; // lol 
-//     await dispatch({
-//       type: MOVE_SHELF,
-//       payload: { book }
-//     });
-//   } catch (error) {
-//     dispatch({
-//       type: ERROR,
-//       payload: { error }
-//     });
-//   };
-// };
 
 export const BookProvider = ({ children }) => {
-  debugger;
-  const [state, dispatch] = useThunkReducer(reducer, initialState);
-  const { books } = state;
+  const [state, dispatch] = useReducer(reducer, initialState);
+  // const { books } = state;
+  // // const [books, setBooks] = useState([]);
 
   const fetchBooks = async dispatch => {
     await dispatch({ type: LOADING });
@@ -118,17 +114,10 @@ export const BookProvider = ({ children }) => {
   };
 
 
-  const value = { books, moveShelf, fetchBooks };
-
+  const values = { state, dispatch, moveShelf, fetchBooks };
   return (
-    <BookContext.Provider value={value}>
+    <Provider value={values}>
       {children}
-    </BookContext.Provider>
+    </Provider>
   )
 }
-//   const moveShelf = (book, shelf) => {
-//     BooksAPI.update(book, shelf).then(resp => {
-//       book.shelf = shelf;
-//       setBooks(prevState => ([...prevState.map(b => b.id === book.id ? book : b)]));
-//     });
-//   }
