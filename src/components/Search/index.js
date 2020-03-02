@@ -13,28 +13,38 @@ const Search = ({ books, moveShelf }) => {
     submitSearch(query);
   }
 
-  function submitSearch(query) {
+
+  const submitSearch = async query => {
     if (query) {
-      BooksAPI.search(query).then((resp) => {
-        try {
-          resp.forEach(book => {
-            let result = books.filter(bookFromProp => bookFromProp.id === book.id)
-            if (result.length > 0) {
-              result.map(bookRes => book.shelf = bookRes.shelf || '')
-            }
-          })
-          setResults({
-            searchResults: resp
-          });
-        } catch (err) {
-          console.log(resp.err);
-          setResults({
-            searchResults: []
-          })
-        }
-      })
+      const response = await BooksAPI.search(query);
+      
     }
+
   }
+
+
+  // function submitSearch(query) {
+  //   if (query) {
+  //     BooksAPI.search(query).then((resp) => {
+  //       try {
+  //         resp.forEach(book => {
+  //           let result = books.filter(bookFromProp => bookFromProp.id === book.id)
+  //           if (result.length > 0) {
+  //             result.map(bookRes => book.shelf = bookRes.shelf || '')
+  //           }
+  //         })
+  //         setResults({
+  //           searchResults: resp
+  //         });
+  //       } catch (err) {
+  //         console.log(resp.err);
+  //         setResults({
+  //           searchResults: []
+  //         })
+  //       }
+  //     })
+  //   }
+  // }
 
 
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Book = ({ book, moveShelf }) => {
-  console.log(book, moveShelf)
+  // console.log(book, moveShelf)
   const styles = {
     bookCover: {
       width: 128,
@@ -11,6 +11,7 @@ const Book = ({ book, moveShelf }) => {
   }
 
   const changeShelf = async (evt) => {
+    console.log("i'm in!");
     await moveShelf(book, evt.target.value)
   }
 

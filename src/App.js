@@ -111,9 +111,9 @@ const Application = () => {
 
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { books } = state;
-  // const [books, setBooks] = useState([...state.books]);
-  console.log(state);
-  console.log(books);
+  // const [allBooks, setBooks] = useState([...books]);
+  // console.log(state);
+  // console.log(allBooks);
   // debugger;
   const fetchBooks = async dispatch => {
     await dispatch({ type: LOADING });
@@ -132,14 +132,78 @@ const Application = () => {
     };
   }
 
-  const moveShelf = async (book, shelf) => async dispatch => {
-    await BooksAPI.update(book, shelf);
-    book.shelf = shelf; // lol 
-    await dispatch({
-      type: MOVE_SHELF,
-      payload: { book }
-    });
-  };
+
+  const moveShelf = (book, shelf) => dispatch => {
+    BooksAPI.update(book, shelf).then(() => (
+      dispatch({
+        type: MOVE_SHELF,
+        payload: { book }
+      })
+    ))
+  }
+
+
+  // const moveShelf = (book, shelf) => dispatch => {
+  //   BooksAPI.update(book, shelf).then(() => (
+  //     dispatch({
+  //       type: MOVE_SHELF,
+  //       payload: { book }
+  //     })
+  //   ), err => (
+  //     dispatch({
+  //       type: ERROR,
+  //       payload: { err }
+  //     })
+  //   ))
+  // };
+
+  // const moveShelf = async (book, shelf) => async dispatch => {
+  //   try {
+  //     await BooksAPI.update(book, shelf);
+  //     await dispatch({
+  //       type: MOVE_SHELF,
+  //       payload: { book }
+  //     });
+  //     book.shelf = shelf;
+  //   }
+  //   catch (err) {
+  //     await dispatch({
+  //       type: ERROR,
+  //       payload: { err }
+  //     })
+  //   }
+  // }
+
+  // await BooksAPI.update(book, shelf)
+  // BooksAPI.update(book, shelf).then(() => (
+  //   dispatch({
+  //     type: MOVE_SHELF,
+  //     payload: { book }
+  //   }), err => (
+  //     dispatch({
+  //       type: ERROR,
+  //       payload: { err }
+  //     }))
+  // ))
+
+  // const moveShelf =  (book, shelf) =>  dispatch => (
+  //   BooksAPI.update(book, shelf).then(() => (
+  //     dispatch({
+  //       type: MOVE_SHELF,
+  //       payload: { book }
+  //     });
+  //   ))
+  // );
+
+  // function moveShelf(book, shelf) {
+  //   return dispatch
+  // }
+  // const moveShelf = (book, shelf) => {
+  //   console.log("hey");
+  //   BooksAPI.update(book, shelf);
+  //   book.shelf = shelf;
+  //   // update state
+  // }
 
 
 
