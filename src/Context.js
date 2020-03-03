@@ -100,7 +100,7 @@ export const BookProvider = ({ children }) => {
   const moveShelf = (book, shelf) => async dispatch => {
     try {
       await BooksAPI.update(book, shelf);
-      book.shelf = shelf; // lol 
+      book.shelf = shelf;  
       await dispatch({
         type: MOVE_SHELF,
         payload: { book }

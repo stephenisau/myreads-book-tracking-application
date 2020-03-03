@@ -16,7 +16,7 @@ import debounce from 'lodash';
  */
 import Routes from './routes/Routes';
 // import { reducer } from './reducer/root';
-// import { BookContext, BookProvider } from './Context';
+import { BookProvider } from './Context';
 // import { BookStore } from './Context';
 import MainPage from './components/MainPage';
 import Book from './components/Book';
@@ -111,10 +111,13 @@ const Application = () => {
 
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { books } = state;
+
+  // const context = useContext(BookProvider)
   // const [allBooks, setBooks] = useState([...books]);
   // console.log(state);
   // console.log(allBooks);
   // debugger;
+
   const fetchBooks = async dispatch => {
     await dispatch({ type: LOADING });
     try {
@@ -134,6 +137,7 @@ const Application = () => {
 
 
   const moveShelf = (book, shelf) => dispatch => {
+    console.log("hihihih");
     BooksAPI.update(book, shelf).then(() => (
       dispatch({
         type: MOVE_SHELF,
@@ -156,7 +160,7 @@ const Application = () => {
   //     })
   //   ))
   // };
-
+ 
   // const moveShelf = async (book, shelf) => async dispatch => {
   //   try {
   //     await BooksAPI.update(book, shelf);

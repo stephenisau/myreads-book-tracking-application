@@ -2,6 +2,7 @@ import React from 'react';
 
 const Book = ({ book, moveShelf }) => {
   // console.log(book, moveShelf)
+  // const dispatch = useContext();
   const styles = {
     bookCover: {
       width: 128,
