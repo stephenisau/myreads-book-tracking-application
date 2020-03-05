@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, createContext } from 'react';
 import { LOADING, LOADED, ERROR, MOVE_SHELF } from './actions/types';
 import * as BooksAPI from './BooksAPI';
 import useThunkReducer from './utils/hooks/useThunkReducer';
+import { bookReducer as reducer } from './reducer/root';
 
 
 /**
@@ -16,37 +17,6 @@ const initialState = {
 export const BookContext = createContext(initialState);
 const { Provider } = BookContext;
 
-/**
- * Root reducer
- */
-const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    case LOADING:
-      return {
-        books: [],
-        loading: true,
-        error: null
-      }
-    case LOADED:
-      return {
-        books: action.payload.books,
-        loading: false,
-        error: null
-      }
-    case ERROR:
-      return {
-        books: [],
-        loading: false,
-        error: action.payload.error
-      }
-    case MOVE_SHELF:
-      const { book } = action.payload;
-      return state.books.filter(oldBook => oldBook.id === book.id ? book : oldBook);
-
-    default:
-      return state;
-  }
-}
 
 /**
  * 
@@ -59,6 +29,11 @@ const reducer = (state = initialState, action) => {
 export const BookProvider = ({ children }) => {
   const [state, dispatch] = useThunkReducer(reducer, initialState);
 
+
+  /**
+   * Dispatch action to our bookReducer to update our "state"
+   * @param {function} dispatch 
+   */
   const fetchBooks = async dispatch => {
     dispatch({ type: LOADING });
     try {
@@ -76,6 +51,13 @@ export const BookProvider = ({ children }) => {
     };
   }
 
+
+  /**
+   * Dispatch action to our store to update book shelf in backend as well as modify state on the
+   * client-side
+   * @param {object} book 
+   * @param {string} shelf 
+   */
   const moveShelf = (book, shelf) => async dispatch => {
     try {
       await BooksAPI.update(book, shelf);

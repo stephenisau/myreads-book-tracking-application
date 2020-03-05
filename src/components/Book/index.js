@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { BookContext } from '../../Context';
 
-const Book = ({ book, moveShelf }) => {
-  // console.log(book, moveShelf)
-  // const dispatch = useContext();
+const Book = ({ book }) => {
+
+  const { dispatch, moveShelf } = useContext(BookContext);
+
   const styles = {
     bookCover: {
       width: 128,
@@ -12,8 +14,7 @@ const Book = ({ book, moveShelf }) => {
   }
 
   const changeShelf = async (evt) => {
-    console.log("i'm in!");
-    moveShelf(book, evt.target.value)
+    dispatch(moveShelf(book, evt.target.value));
   }
 
   return (

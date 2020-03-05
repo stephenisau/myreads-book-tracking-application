@@ -1,8 +1,6 @@
 import { LOADING, LOADED, ERROR, MOVE_SHELF } from '../actions/types';
 
-
-
-export const reducer = (state = {}, action) => {
+export const bookReducer = (state = {}, action) => {
   switch (action.type) {
     case LOADING:
       return {
@@ -24,8 +22,14 @@ export const reducer = (state = {}, action) => {
       }
 
     case MOVE_SHELF:
+      debugger;
       const { book } = action.payload;
-      return state.filter(b => b.id !== book.id ? b : book)
+
+      return state.map(({books, loading, error}) => {
+        books.filter(b => b.id !== book.id ? b : book),
+        loading,
+        error
+      });
     default:
       return state;
   }
