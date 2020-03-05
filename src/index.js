@@ -7,8 +7,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import * as BookContext from './Context';
 
-console.log(BookContext);
-console.log(BookContext)
 ReactDOM.render(
     <HashRouter>
         <BookContext.BookProvider>
