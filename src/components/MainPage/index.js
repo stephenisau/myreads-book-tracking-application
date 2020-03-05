@@ -3,10 +3,9 @@ import Shelf from '../Shelf';
 import Navigation from '../Navigation';
 import { Link } from 'react-router-dom';
 
-const MainPage = ({ books, moveShelf }) => {
+const MainPage = ({ books }) => {
   if (!books) return <React.Fragment>Loading...</React.Fragment>
 
-  console.log(moveShelf);
   const currentReads = books.filter(book => book.shelf === 'currentlyReading')
   const wantToRead = books.filter(book => book.shelf === 'wantToRead')
   const finishedReading = books.filter(book => book.shelf === 'read')
@@ -17,9 +16,9 @@ const MainPage = ({ books, moveShelf }) => {
       <Navigation />
       <div className="list-books-content">
         <div>
-          <Shelf moveShelf={moveShelf} name="Currently Reading" books={currentReads} />
-          <Shelf moveShelf={moveShelf} name="Want to Read" books={wantToRead} />
-          <Shelf moveShelf={moveShelf} name="Finished Reading" books={finishedReading} />
+          <Shelf name="Currently Reading" books={currentReads} />
+          <Shelf name="Want to Read" books={wantToRead} />
+          <Shelf name="Finished Reading" books={finishedReading} />
         </div>
       </div>
       <div className="open-search">

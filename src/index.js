@@ -5,14 +5,15 @@ import './index.css'
 import { HashRouter } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import * as context from './Context';
+import * as BookContext from './Context';
 
-
-console.log(context);
-console.log(context.BookProvider)
+console.log(BookContext);
+console.log(BookContext)
 ReactDOM.render(
     <HashRouter>
-        <Application />
+        <BookContext.BookProvider>
+            <Application />
+        </BookContext.BookProvider>
     </HashRouter>,
     document.getElementById('root')
 )

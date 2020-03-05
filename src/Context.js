@@ -1,7 +1,7 @@
-import React, { useCallback, useReducer, createContext } from 'react';
+import React, { useEffect, useReducer, createContext } from 'react';
 import { LOADING, LOADED, ERROR, MOVE_SHELF } from './actions/types';
 import * as BooksAPI from './BooksAPI';
-
+import useThunkReducer from './utils/hooks/useThunkReducer';
 
 
 /**
@@ -13,8 +13,8 @@ const initialState = {
   error: null,
 }
 // Context variables
-export const BookStore = createContext(initialState);
-const { Provider } = BookStore;
+export const BookContext = createContext(initialState);
+const { Provider } = BookContext;
 
 /**
  * Root reducer
@@ -49,25 +49,6 @@ const reducer = (state = initialState, action) => {
 }
 
 /**
- * Custom hook to utilize thunk reducer
- * @param {*} reducer 
- * @param {*} initialState 
- */
-// const useThunkReducer = (reducer, initialState) => {
-//   const [state, dispatch] = useReducer(reducer, initialState);
-
-//   const thunkDispatch = React.useCallback(action => {
-//     if (typeof action === "function") {
-//       action(dispatch);
-//     } else {
-//       dispatch(action);
-//     };
-//   }, [dispatch]);
-//   return [state, thunkDispatch];
-// }
-
-
-/**
  * 
  * @param {*} book 
  * @param {*} shelf 
@@ -76,15 +57,13 @@ const reducer = (state = initialState, action) => {
  */
 
 export const BookProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  // const { books } = state;
-  // // const [books, setBooks] = useState([]);
+  const [state, dispatch] = useThunkReducer(reducer, initialState);
 
   const fetchBooks = async dispatch => {
-    await dispatch({ type: LOADING });
+    dispatch({ type: LOADING });
     try {
       const response = await BooksAPI.getAll();
-      await dispatch({
+      dispatch({
         type: LOADED,
         payload: { books: [...response] }
       });
@@ -113,6 +92,10 @@ export const BookProvider = ({ children }) => {
     };
   };
 
+
+  useEffect(() => {
+    dispatch(fetchBooks);
+  }, [dispatch])
 
   const values = { state, dispatch, moveShelf, fetchBooks };
   return (
