@@ -1,8 +1,8 @@
-import React, { useEffect, useReducer, createContext } from 'react';
+import React, { useEffect, createContext } from 'react';
 import { LOADING, LOADED, ERROR, MOVE_SHELF } from './actions/types';
 import * as BooksAPI from './BooksAPI';
 import useThunkReducer from './utils/hooks/useThunkReducer';
-import { bookReducer as reducer } from './reducer/root';
+import reducer from './reducer/bookReducer';
 
 
 /**
