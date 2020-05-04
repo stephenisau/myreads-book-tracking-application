@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import MainPage from '../components/MainPage';
 import Search from '../components/Search';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { BookContext } from '../Context';
 
 const Routes = () => {
@@ -20,7 +20,7 @@ const Routes = () => {
         render={(route) => <MainPage {...route} books={books} />} />
       <Route 
         exact path="/search"
-        render={(route) => <Search {...route} />} />
+        render={(route) => <Search {...route} books={books}/>} />
     </Switch>
   )
 }
