@@ -9,7 +9,6 @@ import Routes from './routes/Routes';
 
 
 const Application = () => {
-
   return (
     <div className="app">
       <BrowserRouter>

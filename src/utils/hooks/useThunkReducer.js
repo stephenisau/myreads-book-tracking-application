@@ -12,7 +12,7 @@ const useThunkReducer = (reducer, initialState) => {
     if (typeof action === "function") {
       action(dispatch);
     } else {
-      dispatch(action);
+      dispatch(action); // {POJO}
     };
   }, [dispatch]);
   return [state, thunkDispatch];

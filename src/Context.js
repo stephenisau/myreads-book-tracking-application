@@ -17,7 +17,6 @@ const initialState = {
 export const BookContext = createContext(initialState);
 const { Provider } = BookContext;
 
-
 /**
  * 
  * @param {*} book 
@@ -62,7 +61,7 @@ export const BookProvider = ({ children }) => {
     try {
       await BooksAPI.update(book, shelf);
       book.shelf = shelf;  
-      await dispatch({
+      dispatch({
         type: MOVE_SHELF,
         payload: { book }
       });
