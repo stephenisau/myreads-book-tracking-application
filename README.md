@@ -1,68 +1,224 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# MyReads
 
-## Available Scripts
+This frontend application is built using React. It's main purpose is to keep track of the books you're currently reading. 
 
-In the project directory, you can run:
+MyReads is live [here](https://stephenisau.github.io/myreads-bookapp/#/)
 
-### `yarn start`
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### Setup
+Download / Clone this repository into your computer and run the following commands while in the directory that you downloaded it into.
+```
+npm install
+npm start
+```
+The frontend should now be starting on `http://localhost:3000/`
 
-### `yarn test`
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features
 
-### `yarn build`
+- React Hooks
+- React Class-based Components
+- Custom Hooks
+- React Context
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This app features the popular Redux thunk design pattern, built using React Context and a custom hook.
+```
+This is the context through which the state of our application is "stored". We define methods here to modify and return parts of the state to our application
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+/**
+ * Initial state of our application
+ */
+const initialState = {
+  books: [],
+  loading: false,
+  error: null,
+}
+// Context variables
+export const BookContext = createContext(initialState);
+const { Provider } = BookContext;
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+/**
+ * 
+ * @param {*} book 
+ * @param {*} shelf 
+ * Update book shelf on our backend and change the shelf 
+ * associated with our book on the client-side
+ */
 
-### `yarn eject`
+export const BookProvider = ({ children }) => {
+  const [state, dispatch] = useThunkReducer(reducer, initialState);
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  /**
+   * Dispatch action to our bookReducer to update our "state"
+   * @param {function} dispatch 
+   */
+  const fetchBooks = async dispatch => {
+    dispatch({ type: LOADING });
+    try {
+      const response = await BooksAPI.getAll();
+      dispatch({
+        type: LOADED,
+        payload: { books: [...response] }
+      });
+    }
+    catch (error) {
+      dispatch({
+        type: ERROR,
+        payload: { error }
+      });
+    };
+  }
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  /**
+   * Dispatch action to our store to update book shelf in backend as well as modify state on the
+   * client-side
+   * @param {object} book 
+   * @param {string} shelf 
+   */
+  const moveShelf = (book, shelf) => async dispatch => {
+    try {
+      await BooksAPI.update(book, shelf);
+      book.shelf = shelf;  
+      dispatch({
+        type: MOVE_SHELF,
+        payload: { book }
+      });
+    } catch (error) {
+      dispatch({
+        type: ERROR,
+        payload: { error }
+      }, [dispatch]);
+    };
+  };
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  useEffect(() => {
+    dispatch(fetchBooks);
+  }, [dispatch])
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  const values = { state, dispatch, moveShelf, fetchBooks };
+  return (
+    <Provider value={values}>
+      {children}
+    </Provider>
+  )
+}
 
-### Code Splitting
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+```
 
-### Analyzing the Bundle Size
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
 
-### Making a Progressive Web App
+This is the custom thunk hook used to determine what to do with our state
+```
+/**
+ * Custom hook to utilize thunk reducer
+ * @param {*} reducer 
+ * @param {*} initialState 
+ */
+const useThunkReducer = (reducer, initialState) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+  const thunkDispatch = useCallback(action => {
+    if (typeof action === "function") {
+      action(dispatch);
+    } else {
+      dispatch(action); 
+    };
+  }, [dispatch]);
+  return [state, thunkDispatch];
+}
 
-### Advanced Configuration
+export default useThunkReducer;
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+```
 
-### Deployment
+Here is the reducer for our book app that molds and returns parts of the state, depending on the action
+```
+const reducer = (state = {}, action) => {
+  switch (action.type) {
+    case LOADING:
+      return {
+        books: [],
+        loading: true,
+        error: null
+      }
+    case LOADED:
+      return {
+        books: action.payload.books,
+        loading: false,
+        error: null
+      }
+    case ERROR:
+      return {
+        books: [],
+        loading: false,
+        error: action.payload.error
+      }
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+    case MOVE_SHELF:
+      const { book } = action.payload;
+      return {
+        ...state,
+        books: state.books.map(b => b.id === book.id ? book : b)
+      }
 
-### `yarn build` fails to minify
+    default:
+      return state;
+  }
+}
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+export default reducer;
+```
+
+
+And here is an example of it being used ona single book, to change the value of the book status.
+```
+
+const Book = ({ book }) => {
+
+  const { dispatch, moveShelf } = useContext(BookContext);
+
+  const styles = {
+    bookCover: {
+      width: 128,
+      height: 193,
+      backgroundImage: `url("${book.imageLinks ? book.imageLinks.thumbnail : ""}")`
+    }
+  }
+
+  const changeShelf = async (evt) => {
+    dispatch(moveShelf(book, evt.target.value));
+  }
+
+  return (
+    <div className="book">
+      <div className="book-top">
+        <div className="book-cover" style={styles.bookCover}></div>
+        <div className="book-shelf-changer">
+          <select
+            value={book.shelf || "none"}
+            onChange={changeShelf}>
+            <option value="move" disabled>Move to...</option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+      </div>
+      <div className="book-title">{book.title}</div>
+      <div className="book-authors">{book.authors || "No authors found..."}</div>
+    </div>
+  )
+}
+
+export default Book;
+
+```
+
+
+Check back for better implementations of the application!
