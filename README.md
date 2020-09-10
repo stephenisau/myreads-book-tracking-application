@@ -23,6 +23,9 @@ The frontend should now be starting on `http://localhost:3000/`
 - React Context
 
 This app features the popular Redux thunk design pattern, built using React Context and a custom hook.
+
+Credit for this patten goes to a course I watched on FrontendMasters. 
+https://frontendmasters.com/courses/pure-react-state/
 ```
 This is the context through which the state of our application is "stored". We define methods here to modify and return parts of the state to our application
 
