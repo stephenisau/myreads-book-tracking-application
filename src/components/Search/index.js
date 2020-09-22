@@ -41,11 +41,8 @@ class Search extends React.Component {
   };
 
 
-  submitSearch = (query) => {
-
-  }
-
   render() {
+    console.log(this.props)
     const searchResults = this.state.searchResults.length > 0 ? <SearchPage searchResults={this.state.searchResults} /> : "No results..."
     return (
       <React.Fragment>
